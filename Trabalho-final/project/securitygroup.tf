@@ -1,5 +1,7 @@
 resource "aws_security_group" "allow-ssh" {
-  name = "sg-${terraform.workspace}"
+  name = "web-${terraform.workspace}-sg"
+  vpc_id = data.aws_vpc.vpc.id
+
 
   ingress {
     from_port   = 22

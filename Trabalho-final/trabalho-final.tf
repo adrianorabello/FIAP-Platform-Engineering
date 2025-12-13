@@ -1,13 +1,5 @@
-terraform {
-  backend "s3" {
-    bucket = "fiap-terraform-state"
-    key    = "project/${terraform.workspace}/terraform.tfstate"
-    region = "us-east-1"
-  }
-}
-
 module "project" {
-  source = "../project"
+  source = "./project"
 
   aws_region = "us-east-1"
 
@@ -19,7 +11,7 @@ module "project" {
 
   web_instance_count = terraform.workspace == "prod" ? 3 : 1
 
-  key_name          = "vockey"
-  path_to_key       = "/home/vscode/.ssh/vockey.pem"
-  instance_username = "ec2-user"
+  KEY_NAME          = "vockey"
+  PATH_TO_KEY       = "/home/vscode/.ssh/vockey.pem"
+  INSTANCE_USERNAME = "ec2-user"
 }

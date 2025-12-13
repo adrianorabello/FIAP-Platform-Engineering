@@ -1,4 +1,3 @@
-
 provider "aws" {
   region = var.aws_region
 }
@@ -70,29 +69,32 @@ resource "aws_instance" "web" {
   vpc_security_group_ids = [aws_security_group.allow-ssh.id]
   key_name               = var.KEY_NAME
 
-  provisioner "file" {
-    source      = "script.sh"
-    destination = "/tmp/script.sh"
-  }
+  user_data = <<-EOF
+    #!/bin/bash
+    yum install -y nginx
+    systemctl enable nginx
+    systemctl start nginx
 
-  provisioner "remote-exec" {
-    inline = [
-      "chmod +x /tmp/script.sh",
-      "sudo /tmp/script.sh",
-    ]
-  }
+    cat <<HTML > /usr/share/nginx/html/index.html
+    <html>
+      <body style="font-family: Arial;">
+        <h1>NGINX UP </h1>
+        <p>Workspace: ${terraform.workspace}</p>
+        <p>Instance: nginx-workspace-${terraform.workspace}-${count.index + 1}</p>
+      </body>
+    </html>
+    HTML
+  EOF
 
-  connection {
-    user        = var.INSTANCE_USERNAME
-    private_key = file(var.PATH_TO_KEY)
-    host        = self.public_dns
-  }
+  
 
   tags = {
     Name = format(
-      "nginx-%s-%03d",
+      "nginx-workspace-%s-%03d",
       terraform.workspace,
       count.index + 1
     )
   }
 }
+
+
